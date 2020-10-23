@@ -1,0 +1,53 @@
+def getTimeStamp(){
+
+    // Obtain TIMESTAMP to tag the docker image
+
+    return sh (script: "date +'%Y%m%d%H%M%S%N' | sed 's/[0-9][0-9][0-9][0-9][0-9][0-9]\$//g'", returnStdout: true);
+}
+node('master'){
+    
+    stage('Init'){
+        script{
+        env.TIMESTAMP = getTimeStamp();
+    
+        }
+    }
+
+stage('projectInstall') {
+
+dir('/spring/project/path') {
+            // Need to write a script to git reset and pull and execute 'mvn clean pacakge'
+            // Keys for git already added to Jenkins machine
+
+            def script_bash = libraryResource 'com/example/gitpullandmakepackage'
+            writeFile file: './gitpullandmakepackage.sh', text: script_bash
+            sh 'bash ./gitpullandmakepackage'
+}
+}
+
+stage('dockerBuild') {
+dir('/spring/project/path') {
+
+    sh '''
+            docker build -t ${TIMESTAMP} .
+            docker tag ${TIMESTAMP} IMAGE_ID
+            docker push ashithwilson/spring-boot-sample-app
+    '''
+}}
+
+
+stage(Deloy){
+    dir('/spring/project/path/k8s') {
+            // deploy.sh creates deployment.yml file from skeleton already present in git. It uses
+            // TIMESTAMP to modify the image and finally use kubectl apply -f to do a rolling deploy.
+            // We can add logic in this script to notify with AWS Cloudwatch
+            // We can send message to CloudWatch by aws cli put-log-events command.
+
+            def script_bash = libraryResource 'com/example/deploytok8s'
+            writeFile file: './deploy.sh', text: script_bash
+            sh 'bash ./deploy.sh ${TIMESTAMP}'
+        }
+    }
+
+}
+
