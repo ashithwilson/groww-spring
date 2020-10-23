@@ -30,7 +30,7 @@ dir('/spring/project/path') {
 
     sh '''
             docker build -t ${TIMESTAMP} .
-            docker tag ${TIMESTAMP} IMAGE_ID
+            docker tag ${TIMESTAMP} ashithwilson/spring-boot-sample-app
             docker push ashithwilson/spring-boot-sample-app
     '''
 }}
