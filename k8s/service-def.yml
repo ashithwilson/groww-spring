@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: spring-boot-docker-service
+  labels:
+    app: sample
+spec:
+  type: NodePort
+  ports:
+  - port: 9090
+    targetPort: 9090
+    nodePort: 30004
+  selector:
+    app: spring-boot-docker

@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spring-boot-docker
+  labels:
+    app: sample
+spec:
+  replicas: 2
+  template:
+    metadata:
+      name: spring-pod
+      labels:
+        app: spring-boot-docker
+    spec:
+      containers:
+      - name: spring-containers
+        image: ashithwilson/spring-boot-sample-app:latest  
+        ports:
+        - containerPort: 9090
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9090
+          initialDelaySeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9090
+          timeoutSeconds: 1
+  selector:
+    matchLabels:
+      app: spring-boot-docker
