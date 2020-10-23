@@ -9,7 +9,7 @@ public class MainHealthIndicator implements HealthIndicator {
 
 	@Override
 	public Health health() {
-		return Health.down().withDetail("Memory Usage", "Limit reached.").build();
+		return Health.up().withDetail("Memory Usage", "Limit reached.").build();
 	}
 
 }
